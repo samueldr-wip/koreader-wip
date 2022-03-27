@@ -7,7 +7,6 @@ pkgs.callPackage (
   , fetchurl
   , fetchFromGitHub
   , fetchFromGitLab
-  , writeShellScriptBin
 
   , git # FIXME: shim that tattles on commands being ran
   , util-linux # for getopt
@@ -22,25 +21,18 @@ pkgs.callPackage (
   , pkg-config
   , perl
   , luarocks
-
-  , luaPackages
+  , python27
 
   , ragel
 
-  # thirdparty
-  , luajit
-  , libjpeg_turbo
-  , djvulibre
-  , zlib
-  , libpng
-  #, tesseract
-  #, leptonica
-  , zstd
+  # Third party deps
   , freetype
-  , harfbuzz
-  , fribidi
-  #, libunibreak
-  , utf8proc
+  , luaPackages
+
+  # Misc dependencies
+
+  , gettext
+  , zlib
 
   # For mupdf
   , jbig2dec
@@ -51,16 +43,26 @@ pkgs.callPackage (
     inherit (lib)
       concatMapStringsSep
     ;
-    inherit (luaPackages) luafilesystem;
 
-    deps = import ./deps.nix {
-      inherit
-        fetchFromGitLab
-        fetchFromGitHub
-        fetchurl
-      ;
-    };
+    deps =
+      # Can't use `callPackage` as it wraps the attrset and adds a few attributes.
+      # Could be fixed by having the deps in a wrapper attrset.
+      let deps = (import ./deps.nix {
+        inherit
+          fetchFromGitLab
+          fetchFromGitHub
+          fetchurl
+        ;
+      });
+      in
+      deps // {
+        # Override the downstream one; the source selected doesn't build due to
+        # dependency on submodules (even when checking out with submodules)
+        freetype2 = freetype;
+      }
+    ;
 
+    # TODO: include in deps somehow
     crengine = {
       src = fetchFromGitHub {
         owner = "koreader";
@@ -69,6 +71,8 @@ pkgs.callPackage (
         hash = "sha256-5poGUwXkllgE+kYAtLFMLb9r3FOTpJ6OAQhHu7sp3o8=";
       };
     };
+    # TODO: include in deps somehow
+    inherit (luaPackages) luafilesystem;
 
   in
   # XXX : replace /build/source with the proper env var
@@ -92,7 +96,6 @@ pkgs.callPackage (
 
         if [ -d "$src" ]; then
           (
-          set -x
           cp -rf \
             "$src" \
             $dir/$name
@@ -118,8 +121,6 @@ pkgs.callPackage (
       # Submodules for "koreader-base"
       echo ":: Copying submodules for koreader-base"
       (
-        PS4=" $ "
-        set -x
         cd base
         cp -rf "${luafilesystem.src}" "luafilesystem"
         chmod -R +w "luafilesystem"
@@ -143,6 +144,8 @@ pkgs.callPackage (
       # FIXME: generalize?
       # Not installed to the usual path :/
       echo ":: Adding thirdparty"
+
+      echo "   → nanosvg"
       mkdir -p /build/source/base/thirdparty/nanosvg/build/nanosvg-prefix/src
       cp -rf \
         "${deps.nanosvg.src}" \
@@ -151,9 +154,6 @@ pkgs.callPackage (
       # ¯\_(ツ)_/¯
       echo " :: Applying misc. fixups to third party..."
       (
-      PS4=" $ "
-      set -x
-
       if [ -e "$(third-party-dir harfbuzz)/harfbuzz/src/update-unicode-tables.make" ]; then
         substituteInPlace "$(third-party-dir harfbuzz)/harfbuzz/src/update-unicode-tables.make" \
           --replace "/usr/bin/env -S make -f" "/usr/bin/make -f"
@@ -162,6 +162,11 @@ pkgs.callPackage (
       # From NixOS's package
       substituteInPlace "$(third-party-dir openssl)/openssl/config" \
         --replace '/usr/bin/env' '${buildPackages.coreutils}/bin/env'
+
+
+      # /usr/bin/env usage, but substitution happens too late if this is not +x'd
+        substituteInPlace "$(third-party-dir glib)/glib/gobject/glib-mkenums.in" \
+          --replace "/usr/bin/env @PYTHON@" "${python27}/bin/python2.7"
       )
 
       patchShebangs .
@@ -192,9 +197,12 @@ pkgs.callPackage (
       autoconf-archive
       pkg-config
       perl
+      python27
     ];
 
     buildInputs = [
+      gettext
+
       # For mupdf
       jbig2dec
       openjpeg
