@@ -83,7 +83,7 @@ pkgs.callPackage (
     postPatch = ''
       third-party-dir() {
         local name="$1"; shift
-        echo "/build/source/base/thirdparty/$name/build/${stdenv.hostPlatform.config}-debug/$name-prefix/src"
+        echo "/build/source/base/thirdparty/$name/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/$name-prefix/src"
       }
       copy-third-party() {
         local name="$1"; shift
@@ -150,6 +150,25 @@ pkgs.callPackage (
       cp -rf \
         "${deps.nanosvg.src}" \
         /build/source/base/thirdparty/nanosvg/build/nanosvg-prefix/src/nanosvg
+
+      # Handled by download_project/add_subdirectory :/
+
+      echo "   → sdcv"
+      mkdir -p /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/
+      cp -rf \
+        "${deps.sdcv.src}" \
+        /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-download
+      chmod -R +w /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-download
+      cp -rf \
+        "${deps.sdcv.src}" \
+        /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
+      chmod -R +w /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
+
+      #    echo $(third-party-dir "sdcv")
+      #    echo /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
+      #    /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-prefix/src
+      #    /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
+      #    exit 2
 
       # ¯\_(ツ)_/¯
       echo " :: Applying misc. fixups to third party..."
@@ -225,9 +244,32 @@ pkgs.callPackage (
     dontUseCmakeConfigure = true;
 
     # ¯\_(ツ)_/¯
+    # See Makefile; KODEDUG_SUFFIX:=-debug
+    KODEBUG_SUFFIX = "-debug";
+    # FIXME: Add debug/release toggle
+
+    # ¯\_(ツ)_/¯
+
+    # Calling `make` without a TARGET is equivalent to an "unqualified" emulator build
+    # By "unqualified" I mean without enabling UBUNTUTOUCH/DEBIAN/MACOS or other targets.
+    # https://github.com/koreader/koreader-base/blob/90f8adcc0b3e189988731fde2b7e6e0f281bac2b/Makefile.defs#L175
+    # https://github.com/koreader/koreader/blob/d53ee056cc562eaf08cb0ae050be9d6c1c8b2483/kodev#L316-L324
+    # Similarly, calling `./kodev build` is mostly equivalent to calling `make` unqualified.
     buildPhase = ''
       ./kodev build
     '';
+
+    # XXX copy koreader-emulator-${stdenv.hostPlatform.config}$KODEBUG_SUFFIX as $out/opt/koreader
+    installPhase = ''
+      cp -prf $PWD $out
+
+      echo "success???"
+      echo "success???"
+      echo "success???"
+      echo "success???"
+      echo "success???"
+    '';
+    noAuditTmpdir = true; # XXX while I check the output
 
     /* FIXME */
     src = builtins.fetchGit {
