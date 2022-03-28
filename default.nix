@@ -7,6 +7,8 @@ pkgs.callPackage (
   , fetchurl
   , fetchFromGitHub
   , fetchFromGitLab
+  , writeShellScriptBin
+  , makeWrapper
 
   , git # FIXME: shim that tattles on commands being ran
   , util-linux # for getopt
@@ -24,6 +26,12 @@ pkgs.callPackage (
   , python27
 
   , ragel
+
+  # Runtime deps
+
+  , gtk3-x11
+  , SDL2
+  , glib
 
   # Third party deps
   , freetype
@@ -43,6 +51,14 @@ pkgs.callPackage (
     inherit (lib)
       concatMapStringsSep
     ;
+
+    # fakeroot is used by dpkg-dev only.
+    fakeroot-passthrough = writeShellScriptBin "fakeroot" ''
+      exec "''${@}"
+    '';
+    dpkg-noop = writeShellScriptBin "dpkg-deb" ''
+      echo "NO-OP: $ dpkg-deb " "''${@}"
+    '';
 
     deps =
       # Can't use `callPackage` as it wraps the attrset and adds a few attributes.
@@ -204,10 +220,10 @@ pkgs.callPackage (
       git
       util-linux
       which
+      makeWrapper
 
-      luarocks
-
-      ragel
+      dpkg-noop
+      fakeroot-passthrough
 
       cmake
       autoconf
@@ -217,6 +233,8 @@ pkgs.callPackage (
       pkg-config
       perl
       python27
+      ragel
+      luarocks
     ];
 
     buildInputs = [
@@ -228,7 +246,6 @@ pkgs.callPackage (
       zlib
     ];
 
-    NIX_CFLAGS_COMPILE = [ "-I${openjpeg.dev}/include/${openjpeg.incDir}" ];
 
     VERBOSE = "1";
     makeFlags = [
@@ -246,7 +263,10 @@ pkgs.callPackage (
     # ¯\_(ツ)_/¯
     # See Makefile; KODEDUG_SUFFIX:=-debug
     KODEBUG_SUFFIX = "-debug";
+    KODEBUG = "1";
+    KODEBUG_NO_DEFAULT = "1";
     # FIXME: Add debug/release toggle
+    #KODEBUG_SUFFIX = "";
 
     # ¯\_(ツ)_/¯
 
@@ -256,26 +276,66 @@ pkgs.callPackage (
     # https://github.com/koreader/koreader/blob/d53ee056cc562eaf08cb0ae050be9d6c1c8b2483/kodev#L316-L324
     # Similarly, calling `./kodev build` is mostly equivalent to calling `make` unqualified.
     buildPhase = ''
-      ./kodev build
+      echo ":: Building"
+      # Can't parallelize as targets won't build
+      make -j 1
+
+      echo ":: Updating target"
+      # DO_STRIP is buggy, and anyway handled by Nixpkgs
+      make update TARGET=debian DO_STRIP=0
+
+      echo ":: Applying fixups"
+      (
+      cd "koreader-debian-${stdenv.hostPlatform.config}$KODEBUG_SUFFIX"/debian/usr/
+
+      substituteInPlace lib/koreader/reader.lua \
+        --replace "#!/usr/lib/koreader/luajit" "#!$out/lib/koreader/luajit"
+      )
     '';
 
     # XXX copy koreader-emulator-${stdenv.hostPlatform.config}$KODEBUG_SUFFIX as $out/opt/koreader
     installPhase = ''
-      cp -prf $PWD $out
+      echo ":: Copying koreader..."
+      (
+      PS4=" $ "
+      set -x
 
-      echo "success???"
-      echo "success???"
-      echo "success???"
-      echo "success???"
-      echo "success???"
+      mkdir -p $out/
+
+      cp -pr -t $out \
+        "koreader-debian-${stdenv.hostPlatform.config}$KODEBUG_SUFFIX"/debian/usr/*
+      rm -rf $out/debian
+      )
+
+      echo ":: Last fixups"
+
+      # Somehow koreader is not using its own build for these libraries:
+      wrapProgram $out/bin/koreader \
+        --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk3-x11 SDL2 glib ]}:$out/lib/koreader/libs/"
+
+
+      echo ":: [TEMPORARILY] copy whole build pwd"
+      (
+      PS4=" $ "
+      set -x
+      mkdir -p $out/
+      cp -prf $PWD "${placeholder "buildoutput"}"
+      )
+
     '';
-    noAuditTmpdir = true; # XXX while I check the output
+
+    noAuditTmpdir = true; # XXX while I'm still playing around
 
     /* FIXME */
     src = builtins.fetchGit {
       url = ./koreader;
       submodules = true;
     };
+
+    outputs = [
+      "out"
+      "buildoutput"
+    ];
 
 
   }
