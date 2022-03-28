@@ -246,6 +246,16 @@ pkgs.callPackage (
       zlib
     ];
 
+    # XXX for mupdf
+    # FIXME: add those flags only for the mupdf build (by patching its makefile I guess)
+    /* XXX */    NIX_CFLAGS_COMPILE = [ "-I${openjpeg.dev}/include/${openjpeg.incDir}" ];
+    /* XXX */    NIX_LDFLAGS = [
+    /* XXX */      "-lopenjp2"
+    /* XXX */      "-lopenjp3d"
+    /* XXX */      "-lopenjpwl"
+    /* XXX */      "-lopenmj2"
+    /* XXX */      "-ljbig2dec"
+    /* XXX */    ];
 
     VERBOSE = "1";
     makeFlags = [
