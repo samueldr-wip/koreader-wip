@@ -45,6 +45,10 @@ pkgs.callPackage (
   # For mupdf
   , jbig2dec
   , openjpeg
+
+  # Fonts
+  , noto-fonts
+  , nerdfonts
   }:
 
   let
@@ -102,6 +106,7 @@ pkgs.callPackage (
       inherit (luaPackages) lpeg;
     };
 
+    font-droid = nerdfonts.override { fonts = [ "DroidSansMono" ]; };
   in
   # XXX : replace /build/source with the proper env var
   stdenv.mkDerivation {
@@ -339,6 +344,19 @@ pkgs.callPackage (
 
       mkdir -vp $out/lib/koreader/rocks
       cp -rvt $out/lib/koreader/rocks/ ${rocks.lpeg}/{lib,share}
+      )
+
+      echo ":: Fixing up fonts..."
+      (
+      PS4=" $ "
+      set -x
+      find $out/lib/koreader/fonts -xtype l -delete
+
+      for i in ${noto-fonts}/share/fonts/truetype/noto/*; do
+        ln -s "$i" $out/lib/koreader/fonts/noto/
+      done
+      ln -s "${font-droid}/share/fonts/opentype/NerdFonts/Droid Sans Mono Nerd Font Complete Mono.otf" $out/lib/koreader/fonts/droid/DroidSansMono.ttf
+
       )
 
       echo ":: Last fixups"
