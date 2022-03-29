@@ -49,6 +49,8 @@ pkgs.callPackage (
   # Fonts
   , noto-fonts
   , nerdfonts
+
+  , isDebug ? false
   }:
 
   let
@@ -82,7 +84,7 @@ pkgs.callPackage (
       }
     ;
 
-    # TODO: include in deps somehow
+    # Dep for koreader-base (not part of thirdparty)
     crengine = {
       src = fetchFromGitHub {
         owner = "koreader";
@@ -91,9 +93,12 @@ pkgs.callPackage (
         hash = "sha256-5poGUwXkllgE+kYAtLFMLb9r3FOTpJ6OAQhHu7sp3o8=";
       };
     };
-    # TODO: include in deps somehow
+
+    # Somehow needed during the build...
     inherit (luaPackages) luafilesystem;
 
+    # luarocks to include in the build...
+    # ... but not really necessarily pre-built...
     rocks = {
       luajson = {
         src = fetchFromGitHub {
@@ -107,15 +112,33 @@ pkgs.callPackage (
     };
 
     font-droid = nerdfonts.override { fonts = [ "DroidSansMono" ]; };
+
+    # See Makefile; KODEDUG_SUFFIX:=-debug
+    debugVars =
+      if isDebug then {
+        KODEBUG_SUFFIX = "-debug";
+        KODEBUG = "1";
+        KODEBUG_NO_DEFAULT = "1";
+      }
+      else {
+        KODEBUG_SUFFIX = "";
+      }
+    ;
   in
-  stdenv.mkDerivation {
+  stdenv.mkDerivation (debugVars // {
     pname = "koreader";
     version = "v2022.03.1";
+
+    /* FIXME */
+    src = builtins.fetchGit {
+      url = ./koreader;
+      submodules = true;
+    };
 
     postPatch = ''
       third-party-dir() {
         local name="$1"; shift
-        echo "/build/source/base/thirdparty/$name/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/$name-prefix/src"
+        echo "$NIX_BUILD_TOP/source/base/thirdparty/$name/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/$name-prefix/src"
       }
       copy-third-party() {
         local name="$1"; shift
@@ -177,23 +200,23 @@ pkgs.callPackage (
       echo ":: Adding thirdparty"
 
       echo "   → nanosvg"
-      mkdir -p /build/source/base/thirdparty/nanosvg/build/nanosvg-prefix/src
+      mkdir -p $NIX_BUILD_TOP/source/base/thirdparty/nanosvg/build/nanosvg-prefix/src
       cp -rf \
         "${deps.nanosvg.src}" \
-        /build/source/base/thirdparty/nanosvg/build/nanosvg-prefix/src/nanosvg
+        $NIX_BUILD_TOP/source/base/thirdparty/nanosvg/build/nanosvg-prefix/src/nanosvg
 
       # Handled by download_project/add_subdirectory :/
 
       echo "   → sdcv"
-      mkdir -p /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/
+      mkdir -p $NIX_BUILD_TOP/source/base/thirdparty/sdcv/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/
       cp -rf \
         "${deps.sdcv.src}" \
-        /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-download
-      chmod -R +w /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-download
+        $NIX_BUILD_TOP/source/base/thirdparty/sdcv/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/sdcv-download
+      chmod -R +w $NIX_BUILD_TOP/source/base/thirdparty/sdcv/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/sdcv-download
       cp -rf \
         "${deps.sdcv.src}" \
-        /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
-      chmod -R +w /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
+        $NIX_BUILD_TOP/source/base/thirdparty/sdcv/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/sdcv-src
+      chmod -R +w $NIX_BUILD_TOP/source/base/thirdparty/sdcv/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/sdcv-src
 
       # ¯\_(ツ)_/¯
       echo " :: Applying misc. fixups to third party..."
@@ -278,15 +301,6 @@ pkgs.callPackage (
     dontUseCmakeConfigure = true;
 
     # ¯\_(ツ)_/¯
-    # See Makefile; KODEDUG_SUFFIX:=-debug
-    #KODEBUG_SUFFIX = "-debug";
-    #KODEBUG = "1";
-    #KODEBUG_NO_DEFAULT = "1";
-    # FIXME: Add debug/release toggle
-    KODEBUG_SUFFIX = "";
-
-    # ¯\_(ツ)_/¯
-
     # Calling `make` without a TARGET is equivalent to an "unqualified" emulator build
     # By "unqualified" I mean without enabling UBUNTUTOUCH/DEBIAN/MACOS or other targets.
     # https://github.com/koreader/koreader-base/blob/90f8adcc0b3e189988731fde2b7e6e0f281bac2b/Makefile.defs#L175
@@ -310,7 +324,6 @@ pkgs.callPackage (
       )
     '';
 
-    # XXX copy koreader-emulator-${stdenv.hostPlatform.config}$KODEBUG_SUFFIX as $out/opt/koreader
     installPhase = ''
       echo ":: Copying koreader..."
       (
@@ -358,20 +371,10 @@ pkgs.callPackage (
       echo $version > $out/lib/koreader/git-rev
     '';
 
-    noAuditTmpdir = true; # XXX while I'm still playing around
-
-    /* FIXME */
-    src = builtins.fetchGit {
-      url = ./koreader;
-      submodules = true;
-    };
-
-    outputs = [
-      "out"
-    ];
-
-
-  }
+    # FIXME: check why there are still /build references
+    # RPATH of binary /nix/store/c9scanb911yg4cc334rvsq9bdf2m0q01-koreader-v2022.03.1/lib/koreader/libs/liblept.so.5 contains a forbidden reference to /build/
+    noAuditTmpdir = true;
+  })
 ) {
   luaPackages = pkgs.luajitPackages;
   luarocks = pkgs.luajitPackages.luarocks;
