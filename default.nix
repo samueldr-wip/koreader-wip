@@ -1,4 +1,6 @@
-{ system ? builtins.currentSystem, pkgs ? import <nixpkgs> { inherit system; } }:
+{ system ? builtins.currentSystem
+, pkgs ? import ./pkgs.nix { inherit system; }
+}:
 
 pkgs.callPackage (
   { stdenv
