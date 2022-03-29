@@ -90,6 +90,18 @@ pkgs.callPackage (
     # TODO: include in deps somehow
     inherit (luaPackages) luafilesystem;
 
+    rocks = {
+      luajson = {
+        src = fetchFromGitHub {
+          owner = "harningt";
+          repo = "luajson";
+          rev = "refs/tags/1.3.4";
+          hash = "sha256-JaJsjN5Gp+8qswfzl5XbHRQMfaCAJpWDWj9DYWJ0gEI=";
+        };
+      };
+      inherit (luaPackages) lpeg;
+    };
+
   in
   # XXX : replace /build/source with the proper env var
   stdenv.mkDerivation {
@@ -317,12 +329,25 @@ pkgs.callPackage (
       rm -rf $out/debian
       )
 
+      echo ":: Copying required lua rocks..."
+      (
+      PS4=" $ "
+      set -x
+      mkdir -p $buildoutput/
+      mkdir -vp $out/lib/koreader/rocks/share/lua/5.1/
+      cp -rvt $out/lib/koreader/rocks/share/lua/5.1/ -prf ${rocks.luajson.src}/lua/*
+
+      mkdir -vp $out/lib/koreader/rocks
+      cp -rvt $out/lib/koreader/rocks/ ${rocks.lpeg}/{lib,share}
+      )
+
       echo ":: Last fixups"
 
       # Somehow koreader is not using its own build for these libraries:
       wrapProgram $out/bin/koreader \
         --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk3-x11 SDL2 glib ]}:$out/lib/koreader/libs/"
 
+      echo $version > $out/lib/koreader/git-rev
 
       echo ":: [TEMPORARILY] copy whole build pwd"
       (
@@ -349,4 +374,7 @@ pkgs.callPackage (
 
 
   }
-) { }
+) {
+  luaPackages = pkgs.luajitPackages;
+  luarocks = pkgs.luajitPackages.luarocks;
+}
