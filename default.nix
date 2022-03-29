@@ -248,6 +248,9 @@ pkgs.callPackage (
           --replace "DOWNLOAD_COMMAND" "#DOWNLOAD_COMMAND" \
           --replace " URL" " #URL"
       done
+
+      echo ":: Removing plugins"
+      rm -rf plugins/*
     '';
 
     nativeBuildInputs = [
