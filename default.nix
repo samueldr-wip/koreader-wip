@@ -56,7 +56,7 @@ pkgs.callPackage (
       concatMapStringsSep
     ;
 
-    # fakeroot is used by dpkg-dev only.
+    # fakeroot is used by dpkg-deb only.
     fakeroot-passthrough = writeShellScriptBin "fakeroot" ''
       exec "''${@}"
     '';
@@ -108,7 +108,6 @@ pkgs.callPackage (
 
     font-droid = nerdfonts.override { fonts = [ "DroidSansMono" ]; };
   in
-  # XXX : replace /build/source with the proper env var
   stdenv.mkDerivation {
     pname = "koreader";
     version = "v2022.03.1";
@@ -161,20 +160,19 @@ pkgs.callPackage (
         mkdir -p kpvcrlib
         cp -rf "${crengine.src}" "kpvcrlib/crengine"
         chmod -R +w "kpvcrlib/crengine"
-        # ????
         (
-          cd thirdparty/kpvcrlib/
-          ln -s ../../kpvcrlib/crengine
+        cd thirdparty/kpvcrlib/
+        ln -s ../../kpvcrlib/crengine
         )
       )
 
+      # Copying third party dirs
       ${
         concatMapStringsSep "\n" (name: ''
           copy-third-party "${name}" "${deps.${name}.src}"
         '') (builtins.attrNames deps)
       }
 
-      # FIXME: generalize?
       # Not installed to the usual path :/
       echo ":: Adding thirdparty"
 
@@ -196,12 +194,6 @@ pkgs.callPackage (
         "${deps.sdcv.src}" \
         /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
       chmod -R +w /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
-
-      #    echo $(third-party-dir "sdcv")
-      #    echo /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
-      #    /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-prefix/src
-      #    /build/source/base/thirdparty/sdcv/build/x86_64-unknown-linux-gnu$KODEBUG_SUFFIX/sdcv-src
-      #    exit 2
 
       # ¯\_(ツ)_/¯
       echo " :: Applying misc. fixups to third party..."
@@ -283,17 +275,15 @@ pkgs.callPackage (
     ];
 
     # ¯\_(ツ)_/¯
-    #configurePhase = ''
-    #'';
     dontUseCmakeConfigure = true;
 
     # ¯\_(ツ)_/¯
     # See Makefile; KODEDUG_SUFFIX:=-debug
-    KODEBUG_SUFFIX = "-debug";
-    KODEBUG = "1";
-    KODEBUG_NO_DEFAULT = "1";
+    #KODEBUG_SUFFIX = "-debug";
+    #KODEBUG = "1";
+    #KODEBUG_NO_DEFAULT = "1";
     # FIXME: Add debug/release toggle
-    #KODEBUG_SUFFIX = "";
+    KODEBUG_SUFFIX = "";
 
     # ¯\_(ツ)_/¯
 
@@ -338,7 +328,6 @@ pkgs.callPackage (
       (
       PS4=" $ "
       set -x
-      mkdir -p $buildoutput/
       mkdir -vp $out/lib/koreader/rocks/share/lua/5.1/
       cp -rvt $out/lib/koreader/rocks/share/lua/5.1/ -prf ${rocks.luajson.src}/lua/*
 
@@ -365,16 +354,8 @@ pkgs.callPackage (
       wrapProgram $out/bin/koreader \
         --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk3-x11 SDL2 glib ]}:$out/lib/koreader/libs/"
 
+      # koreader needs a version in there, not an empty file...
       echo $version > $out/lib/koreader/git-rev
-
-      echo ":: [TEMPORARILY] copy whole build pwd"
-      (
-      PS4=" $ "
-      set -x
-      mkdir -p $out/
-      cp -prf $PWD "${placeholder "buildoutput"}"
-      )
-
     '';
 
     noAuditTmpdir = true; # XXX while I'm still playing around
@@ -387,7 +368,6 @@ pkgs.callPackage (
 
     outputs = [
       "out"
-      "buildoutput"
     ];
 
 
