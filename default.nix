@@ -15,7 +15,7 @@ let
     })
   ]);
 
-  plugins = pkgs.runCommandNoCC "" {} ''
+  plugins = pkgs.runCommandNoCC "koreader-configured-plugins" {} ''
     mkdir -p $out/lib/koreader/plugins
     PLUGINS=(
       coverbrowser
