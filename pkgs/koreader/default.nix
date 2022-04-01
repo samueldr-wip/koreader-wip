@@ -81,19 +81,6 @@ let
     }
   ;
 
-  # Dep for koreader-base (not part of thirdparty)
-  crengine = {
-    src = fetchFromGitHub {
-      owner = "koreader";
-      repo = "crengine";
-      rev = "b0fdab357637e9b3aa407e5dfa102adc3c303f68";
-      hash = "sha256-5poGUwXkllgE+kYAtLFMLb9r3FOTpJ6OAQhHu7sp3o8=";
-    };
-  };
-
-  # Somehow needed during the build...
-  inherit (luaPackages) luafilesystem;
-
   # luarocks to include in the build...
   # ... but not really necessarily pre-built...
   rocks = {
@@ -126,11 +113,19 @@ stdenv.mkDerivation (debugVars // {
   pname = "koreader";
   version = "v2022.03.1";
 
-  /* FIXME */
-  src = builtins.fetchGit {
-    url = ../../koreader;
-    submodules = true;
+  # TODO: use non-submodules fetchFromGitHub, but with a list pre-composed not unlike deps.nix?
+  # Might make it easier to replace just one repo for development purposes.
+  src = fetchFromGitHub {
+    owner = "koreader";
+    repo = "koreader";
+    rev = "v2022.03.1";
+    hash = "sha256-a6zzb/RCxySFgMH60BfRenX1bPg3CRmEOMPploM/Rio=";
+    fetchSubmodules = true;
   };
+
+  patches = [
+    ./fix-building.patch
+  ];
 
   postPatch = ''
     third-party-dir() {
@@ -169,22 +164,6 @@ stdenv.mkDerivation (debugVars // {
         esac
       fi
     }
-
-    # Submodules for "koreader-base"
-    echo ":: Copying submodules for koreader-base"
-    (
-      cd base
-      cp -rf "${luafilesystem.src}" "luafilesystem"
-      chmod -R +w "luafilesystem"
-
-      mkdir -p kpvcrlib
-      cp -rf "${crengine.src}" "kpvcrlib/crengine"
-      chmod -R +w "kpvcrlib/crengine"
-      (
-      cd thirdparty/kpvcrlib/
-      ln -s ../../kpvcrlib/crengine
-      )
-    )
 
     # Copying third party dirs
     ${

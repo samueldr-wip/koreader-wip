@@ -1,0 +1,190 @@
+From 7323c1f884cdfe06e2fff6a4b9412922586cf4b5 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Mon, 28 Mar 2022 20:00:36 -0400
+Subject: [PATCH 1/3] WORKAROUND: don't download thirdparty projects
+
+---
+ thirdparty/sdcv/CMakeLists.txt | 18 +++++++++---------
+ thirdparty/sdl2/CMakeLists.txt | 12 ++++++------
+ 2 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/base/thirdparty/sdcv/CMakeLists.txt b/base/thirdparty/sdcv/CMakeLists.txt
+index bcd4b6a7..b668a5b5 100644
+--- a/base/thirdparty/sdcv/CMakeLists.txt
++++ b/base/thirdparty/sdcv/CMakeLists.txt
+@@ -87,15 +87,15 @@ ko_write_gitclone_script(
+     ${SOURCE_DIR}
+ )
+ 
+-download_project(
+-    PROJ ${PROJECT_NAME}
+-    GIT_REPOSITORY
+-    https://github.com/Dushistov/sdcv.git
+-    GIT_TAG
+-    ${SDCV_GIT_COMMIT}
+-    #DOWNLOAD_COMMAND ${CMAKE_COMMAND} -P ${GIT_CLONE_SCRIPT_FILENAME}
+-    PATCH_COMMAND COMMAND ${PATCH_CMD1}
+-)
++#download_project(
++#    PROJ ${PROJECT_NAME}
++#    GIT_REPOSITORY
++#    https://github.com/Dushistov/sdcv.git
++#    GIT_TAG
++#    ${SDCV_GIT_COMMIT}
++#    #DOWNLOAD_COMMAND ${CMAKE_COMMAND} -P ${GIT_CLONE_SCRIPT_FILENAME}
++#    PATCH_COMMAND COMMAND ${PATCH_CMD1}
++#)
+ 
+ add_subdirectory("${CMAKE_BINARY_DIR}/sdcv-src"
+                  "${CMAKE_BINARY_DIR}/sdcv-build")
+diff --git a/base/thirdparty/sdl2/CMakeLists.txt b/base/thirdparty/sdl2/CMakeLists.txt
+index d37cb130..f4337a00 100644
+--- a/base/thirdparty/sdl2/CMakeLists.txt
++++ b/base/thirdparty/sdl2/CMakeLists.txt
+@@ -17,12 +17,12 @@ set(PATCH_CMD "${KO_PATCH_SH} ${CMAKE_CURRENT_SOURCE_DIR}/cocoa.patch")
+ 
+ set(SDL2_VER "2.0.12")
+ set(SDL2_MD5 "783b6f2df8ff02b19bb5ce492b99c8ff")
+-download_project(
+-    PROJ ${PROJECT_NAME}
+-    URL https://www.libsdl.org/release/SDL2-${SDL2_VER}.tar.gz
+-    URL_MD5 ${SDL2_MD5}
+-    PATCH_COMMAND COMMAND ${PATCH_CMD}
+-)
++#download_project(
++#    PROJ ${PROJECT_NAME}
++#    URL https://www.libsdl.org/release/SDL2-${SDL2_VER}.tar.gz
++#    URL_MD5 ${SDL2_MD5}
++#    PATCH_COMMAND COMMAND ${PATCH_CMD}
++#)
+ 
+ add_subdirectory("${CMAKE_BINARY_DIR}/sdl2-src"
+                  "${CMAKE_BINARY_DIR}/sdl2-build")
+-- 
+2.35.1
+
+
+From b13a2d5c6cb2be2c93a693aa7525e55d8c5e04ec Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Mon, 28 Mar 2022 20:01:09 -0400
+Subject: [PATCH 2/3] WORKAROUND: don't clean build/download dirs
+
+This causes builds to fail since the pre-cached downloads in the sandbox
+are removed eagerly
+---
+ base/Makefile.third | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/base/Makefile.third b/base/Makefile.third
+index a5c0c541..4a91ce6e 100644
+--- a/base/Makefile.third
++++ b/base/Makefile.third
+@@ -116,7 +116,6 @@ $(MUPDF_LIB) $(MUPDF_DIR)/include: $(JPEG_LIB) \
+ 		$(FREETYPE_LIB) $(FREETYPE_DIR)/include \
+ 		$(HARFBUZZ_LIB) $(HARFBUZZ_DIR)/include \
+ 		$(ZLIB) $(AES_LIB) $(THIRDPARTY_DIR)/mupdf/*.*
+-	-rm -rf $(MUPDF_BUILD_DIR)
+ 	install -d $(MUPDF_BUILD_DIR)
+ 	cd $(MUPDF_BUILD_DIR) && \
+ 		$(CMAKE) $(CMAKE_FLAGS) -DHOSTCFLAGS="$(HOSTCFLAGS)" -DHOSTCC="$(HOSTCC)" \
+@@ -270,7 +269,6 @@ $(POPEN_NOSHELL_LIB): $(THIRDPARTY_DIR)/popen-noshell/*.*
+ # k2pdfopt depends on leptonica and tesseract
+ $(LEPTONICA_DIR): $(THIRDPARTY_DIR)/leptonica/*.*
+ 	install -d $(LEPTONICA_BUILD_DIR)
+-	rm -rf $(LEPTONICA_DIR)
+ 	cd $(LEPTONICA_BUILD_DIR) && \
+ 		$(CMAKE) $(CMAKE_FLAGS) \
+ 		$(if $(ARM_GLIBC_GTE_2_22),-DARM_GLIBC_GTE_2_22=on,) \
+@@ -279,7 +277,6 @@ $(LEPTONICA_DIR): $(THIRDPARTY_DIR)/leptonica/*.*
+ 
+ $(TESSERACT_DIR): $(THIRDPARTY_DIR)/tesseract/*.*
+ 	install -d $(TESSERACT_BUILD_DIR)
+-	rm -rf $(TESSERACT_DIR)
+ 	cd $(TESSERACT_BUILD_DIR) && \
+ 		$(CMAKE) $(CMAKE_FLAGS) $(CURDIR)/$(THIRDPARTY_DIR)/tesseract && \
+ 		$(CMAKE_MAKE_PROGRAM) $(CMAKE_MAKE_PROGRAM_FLAGS)
+@@ -544,7 +541,6 @@ $(OUTPUT_DIR)/data/KoboUSBMS.tar.gz: $(THIRDPARTY_DIR)/kobo-usbms/*.*
+ # ===========================================================================
+ # common lua library for networking
+ $(LUASOCKET): $(THIRDPARTY_DIR)/luasocket/*.*
+-	-rm -rf $(LUASOCKET) $(LUASOCKET_BUILD_DIR)
+ 	install -d $(LUASOCKET_BUILD_DIR)
+ 	cd $(LUASOCKET_BUILD_DIR) && \
+ 		$(CMAKE) $(CMAKE_FLAGS) -DPLAT="$(if $(WIN32),mingw,$(if $(DARWIN),macosx,linux))" \
+-- 
+2.35.1
+
+
+From 48e50958e7dab19620627289fa37faee8f7922eb Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Thu, 31 Mar 2022 22:23:43 -0400
+Subject: [PATCH 3/3] WORKAROUND: drop lua spore, which is actually only used
+ by kosync.koplugin
+
+Building it, right now, is troublesome. We'll look into figuring out a
+solution that doesn't involve running an actual luarocks build.
+---
+ base/Makefile       |  1 -
+ base/Makefile.defs  |  5 -----
+ base/Makefile.third | 17 -----------------
+ 3 files changed, 23 deletions(-)
+
+diff --git a/base/Makefile b/base/Makefile
+index 55939941..3009c71f 100644
+--- a/base/Makefile
++++ b/base/Makefile
+@@ -24,7 +24,6 @@ all: $(OUTPUT_DIR)/libs $(if $(ANDROID),,$(LUAJIT)) \
+ 		$(TURBO_FFI_WRAP_LIB) \
+ 		$(LUA_HTMLPARSER_ROCK) \
+ 		$(LUA_RAPIDJSON_ROCK) \
+-		$(LUA_SPORE_ROCK) \
+ 		$(if $(ANDROID),$(LPEG_DYNLIB) $(LPEG_RE),) \
+ 		$(if $(WIN32),,$(ZMQ_LIB) $(CZMQ_LIB)) \
+ 		$(if $(WIN32),,$(OUTPUT_DIR)/sdcv) \
+diff --git a/base/Makefile.defs b/base/Makefile.defs
+index 26febdef..eb375a89 100644
+--- a/base/Makefile.defs
++++ b/base/Makefile.defs
+@@ -886,11 +886,6 @@ LUA_RAPIDJSON_VER=0.7.1-1
+ LUA_RAPIDJSON_BUILD_DIR=$(THIRDPARTY_DIR)/lua-rapidjson/build/$(MACHINE)
+ LUA_RAPIDJSON_ROCK=$(LUAROCKS_DIR)/rapidjson/$(LUA_RAPIDJSON_VER)/rapidjson-$(LUA_RAPIDJSON_VER).rockspec
+ 
+-LUA_SPORE_BUILD_DIR=$(THIRDPARTY_DIR)/lua-Spore/build/$(MACHINE)
+-LUA_SPORE_DIR=$(CURDIR)/$(LUA_SPORE_BUILD_DIR)/lua-Spore-prefix/src/lua-Spore
+-SPORE_VER=0.3.1-1
+-LUA_SPORE_VER=$(SPORE_VER)
+-LUA_SPORE_ROCK=$(LUAROCKS_DIR)/lua-spore/$(SPORE_VER)/lua-spore-$(SPORE_VER).rockspec
+ 
+ SQLITE_BUILD_DIR=$(THIRDPARTY_DIR)/sqlite/build/$(MACHINE)
+ SQLITE_DIR=$(CURDIR)/$(SQLITE_BUILD_DIR)/sqlite-prefix/src/sqlite-build
+diff --git a/base/Makefile.third b/base/Makefile.third
+index 4a91ce6e..22725f55 100644
+--- a/base/Makefile.third
++++ b/base/Makefile.third
+@@ -670,23 +670,6 @@ ifdef DARWIN
+ 		$@
+ endif
+ 
+-$(LUA_SPORE_ROCK): $(THIRDPARTY_DIR)/lua-Spore/*.*
+-	install -d $(LUA_SPORE_BUILD_DIR)
+-	-rm -f $(LUA_SPORE_DIR)/../lua-Spore-stamp/lua-Spore-build
+-	-rm -f $(LUA_SPORE_ROCK)
+-	cd $(LUA_SPORE_BUILD_DIR) && \
+-		$(CMAKE) $(CMAKE_FLAGS) -DOUTPUT_DIR="$(CURDIR)/$(OUTPUT_DIR)" \
+-		-DLUA_SPORE_VER=$(LUA_SPORE_VER) -DLD="$(CC)" \
+-		-DCC="$(CC)" -DCFLAGS="$(CFLAGS) -I$(LUAJIT_DIR)/src" \
+-		-DLUAROCKS="$(LUAROCKS_BINARY)" \
+-		-DLUA_INCDIR="$(LUA_INCDIR)" \
+-		-DLUA_LIBDIR="$(LUA_LIBDIR)" \
+-		$(if $(ANDROID),-DLIBFLAG="$(LDFLAGS) $(CURDIR)/$(LUAJIT_LIB) -nostartfiles",) \
+-		$(CURDIR)/$(THIRDPARTY_DIR)/lua-Spore && \
+-		$(CMAKE_MAKE_PROGRAM) $(CMAKE_MAKE_PROGRAM_FLAGS)
+-ifdef ANDROID
+-	-rm -f $(LPEG_DYNLIB) # so that LPEG can be rebuilt in our control
+-endif
+ 
+ $(LUA_HTMLPARSER_ROCK): $(THIRDPARTY_DIR)/lua-htmlparser/*.*
+ 	install -d $(LUA_HTMLPARSER_BUILD_DIR)
+-- 
+2.35.1
+
