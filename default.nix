@@ -19,6 +19,7 @@ let
     mkdir -p $out/lib/koreader/plugins
     PLUGINS=(
       coverbrowser
+      gestures
     )
     for p in "''${PLUGINS[@]}"; do
       cp -prf ${pkgs.koreader.src}/plugins/$p.koplugin $out/lib/koreader/plugins/$p.koplugin
