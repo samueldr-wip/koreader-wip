@@ -253,7 +253,7 @@ stdenv.mkDerivation (debugVars // {
     pkg-config
     perl
     python27
-    chrpath
+    #chrpath # XXX bug: no rpath at all; fix: add $out libs folder to rpath
     ragel
     luarocks
   ];
@@ -394,5 +394,6 @@ stdenv.mkDerivation (debugVars // {
 
   # The memoized lib keeps refs to /build/, and it doesn't matter to us since
   # it's used only for hacking purposes
-  noAuditTmpdir = buildMemoizedLibs;
+  #noAuditTmpdir = buildMemoizedLibs;
+  noAuditTmpdir = true; # XXX
 })
