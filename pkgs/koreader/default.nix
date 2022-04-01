@@ -49,6 +49,11 @@
 , nerdfonts
 
 , isDebug ? false
+
+# Enables a hack that returns a memoized thirdparty libs build.
+# Used to speed-up hacking on the project
+, buildMemoizedLibs ? false
+, memoizedLibBuild ? null
 }:
 
 let
@@ -291,6 +296,7 @@ stdenv.mkDerivation (debugVars // {
   # https://github.com/koreader/koreader/blob/d53ee056cc562eaf08cb0ae050be9d6c1c8b2483/kodev#L316-L324
   # Similarly, calling `./kodev build` is mostly equivalent to calling `make` unqualified.
   buildPhase = ''
+    ${if memoizedLibBuild == null then ''
     (
     cd base
 
@@ -306,7 +312,21 @@ stdenv.mkDerivation (debugVars // {
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libsqlite3.so \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libzmq.so.4 \
       libs
+    ${if buildMemoizedLibs then ''
+      mkdir -p $out/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/
+      cp -prf build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/ mkdir -p $out/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/
+
+      echo "============================================"
+      echo "| NOTE: Only the libs targets were built!! |"
+      echo "============================================"
+
+      exit 0
+    '' else ""}
     )
+    '' else ''
+      echo "FIXME: I don't know what to do with memoizedLibBuild = '${memoizedLibBuild}'!"
+      exit 4
+    ''}
 
     echo ":: Building"
     # Can't parallelize as targets won't build
@@ -371,4 +391,8 @@ stdenv.mkDerivation (debugVars // {
     # koreader needs a version in there, not an empty file...
     echo $version > $out/lib/koreader/git-rev
   '';
+
+  # The memoized lib keeps refs to /build/, and it doesn't matter to us since
+  # it's used only for hacking purposes
+  noAuditTmpdir = buildMemoizedLibs;
 })
