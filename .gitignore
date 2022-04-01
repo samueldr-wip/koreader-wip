@@ -1,2 +1,5 @@
-result
+# Assumed to be a git checkout of koreader
+/koreader
 
+# Nix built results
+result
