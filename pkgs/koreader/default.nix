@@ -235,6 +235,9 @@ stdenv.mkDerivation (debugVars // {
 
     patchShebangs .
 
+    substituteInPlace base/Makefile.defs \
+      --replace "SHELL:=/bin/bash" "SHELL:=bash"
+
     # Even when the source is present, the ExternalProject_Add function tries
     # to download the third party component..
     for f in base/thirdparty/*/CMakeLists.txt ; do
