@@ -21,6 +21,7 @@
 , perl
 , luarocks
 , python27
+, chrpath # Used to fix RPATH refs by their build system
 
 , ragel
 
@@ -247,6 +248,7 @@ stdenv.mkDerivation (debugVars // {
     pkg-config
     perl
     python27
+    chrpath
     ragel
     luarocks
   ];
@@ -369,8 +371,4 @@ stdenv.mkDerivation (debugVars // {
     # koreader needs a version in there, not an empty file...
     echo $version > $out/lib/koreader/git-rev
   '';
-
-  # FIXME: check why there are still /build references
-  # RPATH of binary /nix/store/c9scanb911yg4cc334rvsq9bdf2m0q01-koreader-v2022.03.1/lib/koreader/libs/liblept.so.5 contains a forbidden reference to /build/
-  noAuditTmpdir = true;
 })
