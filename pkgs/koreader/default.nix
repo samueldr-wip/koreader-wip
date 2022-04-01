@@ -310,6 +310,23 @@ stdenv.mkDerivation (debugVars // {
   # https://github.com/koreader/koreader/blob/d53ee056cc562eaf08cb0ae050be9d6c1c8b2483/kodev#L316-L324
   # Similarly, calling `./kodev build` is mostly equivalent to calling `make` unqualified.
   buildPhase = ''
+    (
+    cd base
+
+    # Bleh, the mkdir for libs is not part of the deps for libs
+    mkdir -p build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/
+
+    # The shorted `make` invocation to build all thirdparty libs
+    make TARGET=debian \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libczmq.so.1 \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libgif.so.7 \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/liblodepng.so \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libluajit.so \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libsqlite3.so \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libzmq.so.4 \
+      libs
+    )
+
     echo ":: Building"
     # Can't parallelize as targets won't build
     make -j 1
