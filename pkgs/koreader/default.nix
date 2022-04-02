@@ -309,6 +309,10 @@ stdenv.mkDerivation (debugVars // {
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libluajit.so \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libsqlite3.so \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libzmq.so.4 \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/jit \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/luajit \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/sdcv \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/tar \
       libs
     )
     ${if buildMemoizedLibs then ''
@@ -334,6 +338,10 @@ stdenv.mkDerivation (debugVars // {
       # echo "thirdparty/$name/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/$name-prefix/src"
       }
     '' else ''
+      echo "==============================="
+      echo "| NOTE: This build is impure! |"
+      echo "==============================="
+
       mkdir -p base/build/
 
       # Obliterate anything in our way
