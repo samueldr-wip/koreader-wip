@@ -300,11 +300,9 @@ stdenv.mkDerivation (debugVars // {
     (
     cd base
 
-    # Bleh, the mkdir for libs is not part of the deps for libs
-    mkdir -p build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/
-
     # The shorted `make` invocation to build all thirdparty libs
     make TARGET=debian \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libczmq.so.1 \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libgif.so.7 \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/liblodepng.so \
@@ -312,20 +310,49 @@ stdenv.mkDerivation (debugVars // {
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libsqlite3.so \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libzmq.so.4 \
       libs
+    )
     ${if buildMemoizedLibs then ''
-      mkdir -p $out/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/
-      cp -prf build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/ mkdir -p $out/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/
+      mkdir -p $out/base/build/
+
+      echo ":: Copying thirdparty"
+      cp -prf \
+        base/thirdparty \
+        $out/base/thirdparty
+
+      echo ":: Copying build"
+      cp -prf \
+        base/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX \
+        $out/base/build/
 
       echo "============================================"
       echo "| NOTE: Only the libs targets were built!! |"
       echo "============================================"
 
       exit 0
-    '' else ""}
-    )
+    '' else ""
+      # Ugh, we'll have to memoize all of this too?
+      # echo "thirdparty/$name/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/$name-prefix/src"
+      }
     '' else ''
-      echo "FIXME: I don't know what to do with memoizedLibBuild = '${memoizedLibBuild}'!"
-      exit 4
+      mkdir -p base/build/
+
+      # Obliterate anything in our way
+      chmod -R +w base
+      rm -rf base/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX
+      rm -rf base/thirdparty
+
+      # Copy the memoized lib build
+      cp -prf ${memoizedLibBuild}/base/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX base/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX
+      cp -prf ${memoizedLibBuild}/base/thirdparty base/thirdparty
+
+      # Ensures this is writable
+      chmod -R +w base/
+
+      # Ensures timestamp is recent enough that it won't be rebuilt
+      find base/build -exec 'touch' '{}' ';'
+      find base/thirdparty/*/build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/*-prefix/src/*-build/ \
+        -exec 'touch' '{}' ';'
+
     ''}
 
     echo ":: Building"
