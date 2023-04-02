@@ -23,8 +23,8 @@
     src = fetchFromGitLab {
       owner = "koreader";
       repo = "djvulibre";
-      rev = "tags/release.3.5.28";
-      hash = "sha256-J/FuNKAgBtpQHPywNVdQ1d44LRMUQJw3pK8+Ml2Ai+0=";
+      rev = "6a1e5ba1c9ef81c205a4b270c3f121a1e106f4fc";
+      hash = "sha256-OWSbxdr93FH3ed0D+NSFWIah7VDTcL3LIGOciY+f4dk=";
     };
   };
   
@@ -39,8 +39,8 @@
     src = fetchFromGitHub {
       owner = "NiLuJe";
       repo = "FBInk";
-      rev = "b7a81463502c8a445e85edd8e1903dca0ede7f5f";
-      hash = "sha256-TvhW0b2i5ZFLrTnwGmMa5M1wsXi5inrssxM7Z5BT15A=";
+      rev = "tags/v1.25.0";
+      hash = "sha256-YehNy+2ALcGpbys6hoTT2BmAWjOQqTEpiCHm6GXDekE=";
     };
   };
   
@@ -48,8 +48,8 @@
     src = fetchFromGitLab {
       owner = "koreader";
       repo = "freetype2";
-      rev = "VER-2-11-1";
-      hash = "sha256-I4j7vn+xQLpwWOG6wWMszyg0sMRCmcLpJLfQi1QJKfE=";
+      rev = "VER-2-13-0";
+      hash = "sha256-dOm8VKYdclTLLkqWMLv7DQI0Qyjit7S4SOCszKEkG3o=";
     };
   };
   
@@ -57,8 +57,8 @@
     src = fetchFromGitHub {
       owner = "fribidi";
       repo = "fribidi";
-      rev = "tags/v1.0.11";
-      hash = "sha256-2y4oN02X88JG2h7366owwcYVkMJJFntgMDcNNmYYTGg=";
+      rev = "tags/v1.0.12";
+      hash = "sha256-L4m/F9rs8fiv9rSf8oy7P6cthhupc6R/lCv30PLiQ4M=";
     };
   };
   
@@ -91,8 +91,8 @@
     src = fetchFromGitHub {
       owner = "harfbuzz";
       repo = "harfbuzz";
-      rev = "3.0.0";
-      hash = "sha256-yRRr4RcnbwoZ1Hn3+zbbocKFyBSLYx/exaAHNGsPINA=";
+      rev = "5.3.1";
+      hash = "sha256-vTx86b8WUD34gMdbdXRTDuwy9+Vobtql2DI0uUmQhMM=";
     };
   };
   
@@ -100,8 +100,8 @@
     src = fetchFromGitHub {
       owner = "koreader";
       repo = "KoboUSBMS";
-      rev = "tags/v1.3.0";
-      hash = "sha256-Em5u64DUCLtX+sGkqPI5EneQCV5Jje3ptFgFdSjGeFY=";
+      rev = "tags/v1.3.8";
+      hash = "sha256-yflTU8OR2Fp0Ew04VqpUzP4MpDURap9oW7AmerCo4BI=";
     };
   };
   
@@ -117,8 +117,8 @@
   
   libffi = {
     src = fetchurl {
-      url = "https://sourceware.org/pub/libffi/libffi-3.3.tar.gz";
-      hash = "sha256-cvunkicD3fp6Ao1ROsFahcjVTI1n9V+lpIAohdxlIFY=";
+      url = "https://github.com/libffi/libffi/releases/download/v3.4.4/libffi-3.4.4.tar.gz";
+      hash = "sha256-1mxWrSWags8qnfxAizK/XaUjcVALhHRff7i2RXEt9nY=";
     };
   };
   
@@ -133,8 +133,8 @@
     src = fetchFromGitHub {
       owner = "libjpeg-turbo";
       repo = "libjpeg-turbo";
-      rev = "2.1.2";
-      hash = "sha256-mlHueKAU/uNUdV9s4jWKAE+XVJdpEFhw2hxGvqRwAGc=";
+      rev = "2.1.5.1";
+      hash = "sha256-96SBBZp+/4WkXLvHKSPItNi5WuzdVccI/ZcbJOFjYYk=";
     };
   };
   
@@ -142,8 +142,8 @@
     src = fetchFromGitHub {
       owner = "koreader";
       repo = "libk2pdfopt";
-      rev = "24b7e6bc136667c98feaa1b519a99dd880b05ebe";
-      hash = "sha256-hwyucSELK8xOh0s6qj85FVmbn7IHEb/g/48qiLqKElY=";
+      rev = "6f479e7d1df48df491ff2398388c562b7cd5bf30";
+      hash = "sha256-ODYOmOg9GK+8fg2R6cA9al6g4h5MuUMzX6WfKfC8Fzo=";
     };
   };
   
@@ -151,8 +151,8 @@
     src = fetchFromGitHub {
       owner = "glennrp";
       repo = "libpng";
-      rev = "v1.6.37";
-      hash = "sha256-O/NsIIhjvJpp1Nl+Pj1GLJkR+nBqu+ymY5vcy/IU0GE=";
+      rev = "v1.6.39";
+      hash = "sha256-RBU+7e77CaUqEiVn/YZRgn4dt4jDZOTUVSZYvnvKlvU=";
     };
   };
   
@@ -160,8 +160,17 @@
     src = fetchFromGitHub {
       owner = "adah1972";
       repo = "libunibreak";
-      rev = "tags/libunibreak_4_3";
-      hash = "sha256-nd4i0JYVRPIpx2lCBjUEHcBEcpFno/ZtczoyH3SP46U=";
+      rev = "tags/libunibreak_5_1";
+      hash = "sha256-hjgT5DCQ6KFXKlxk9LLzxGHz6B71X/3Ot7ipK3KY85A=";
+    };
+  };
+  
+  libwebp = {
+    src = fetchFromGitHub {
+      owner = "webmproject";
+      repo = "libwebp";
+      rev = "v1.2.4";
+      hash = "sha256-XX6qOWlIl8TqOQMiGpmmDVKwQnM1taG6lrqq1ZFVk5s=";
     };
   };
   
@@ -178,8 +187,8 @@
     src = fetchFromGitHub {
       owner = "koreader";
       repo = "lj-wpaclient";
-      rev = "4f95110298b89d80e762215331159657ae36b4ef";
-      hash = "sha256-hAd1Bqyg7S7ms50JO4m5RKzW41UHSBiYX/NJ6V4x9iY=";
+      rev = "2f93beb3071e6ebb57c783bd5b92f83aa5ebb757";
+      hash = "sha256-ilJviGZTvL2i1TN5lHQ4eA9pFiM7NlXD+v9ofv520b8=";
     };
   };
   
@@ -187,8 +196,8 @@
     src = fetchFromGitHub {
       owner = "lvandeve";
       repo = "lodepng";
-      rev = "7fdcc96a5e5864eee72911c3ca79b1d9f0d12292";
-      hash = "sha256-IZxQyjr74n3ZWydcpsG51eSBP834NtJBrrk/UZJFcvg=";
+      rev = "997936fd2b45842031e4180d73d7880e381cf33f";
+      hash = "sha256-F0ABp393WWcsWJaGIBsQkUXUGi5BCUpPzb2m0moi8A8=";
     };
   };
   
@@ -213,8 +222,8 @@
     src = fetchFromGitHub {
       owner = "msva";
       repo = "lua-htmlparser";
-      rev = "4f6437ebd123c3e552a595fc818fdd952888fff2";
-      hash = "sha256-FfAwUlH1/LjNIGNYP8TaToqjgfcY0knoXSRKYMDuggQ=";
+      rev = "2ce09f82a4244c243d9fd0abe6c38e20411912f7";
+      hash = "sha256-5Woku6jkB1pO45l58j70gFZGolXXzjjhgax/zecaTvY=";
     };
   };
   
@@ -231,8 +240,8 @@
     src = fetchFromGitHub {
       owner = "LuaJIT";
       repo = "LuaJIT";
-      rev = "c4fe76d50cda24f3529604448f80ff14754599dd";
-      hash = "sha256-MMQbqqT23wpMM8z9J5lReAGgWfZeUqnQBqJuWRHhqJo=";
+      rev = "d0e88930ddde28ff662503f9f20facf34f7265aa";
+      hash = "sha256-ELAr/POHzXXy1LkdMAM5KMDlYVdN5F6nGAEMHpGY2PU=";
     };
   };
   
@@ -240,17 +249,26 @@
     src = fetchFromGitHub {
       owner = "brunoos";
       repo = "luasec";
-      rev = "tags/v1.0.2";
-      hash = "sha256-ikpym/eLMfro8egTVJBLxq2X4/iXr7JF+E++wbE4HZI=";
+      rev = "tags/v1.3.1";
+      hash = "sha256-3iYRNQoVk5HFjDSqRRmg1taSqeT2cHFil36vxjrEofo=";
     };
   };
   
   luasocket = {
     src = fetchFromGitHub {
-      owner = "diegonehab";
+      owner = "lunarmodules";
       repo = "luasocket";
-      rev = "5b18e475f38fcf28429b1cc4b17baee3b9793a62";
-      hash = "sha256-yu+AV0u8qrrvlNRefizhUJZsqgR9L64urxu0UAR+cAA=";
+      rev = "8c2ff7217e2a205eb107a6f48b04ff1b2b3090a1";
+      hash = "sha256-Y35QYNLznQmErr6rIjxLzw0/6Y7y8TbzD4yaEdgEljA=";
+    };
+  };
+  
+  lunasvg = {
+    src = fetchFromGitHub {
+      owner = "sammycage";
+      repo = "lunasvg";
+      rev = "585d61eef24510bc0b7fe3d9e768d0675d4b5a6f";
+      hash = "sha256-aV/TzTqbVwI1OPBnbxRuHyB+xprn7E0dOWWq50OnD9Q=";
     };
   };
   
@@ -276,8 +294,8 @@
     src = fetchFromGitHub {
       owner = "memononen";
       repo = "nanosvg";
-      rev = "3cdd4a9d788695699799b37d492e45e2c3625790";
-      hash = "sha256-8/WT9t5AJCcat3ZYb9VJZwz0Uisb8TqNV2sU2YV6vBE=";
+      rev = "9da543e8329fdd81b64eb48742d8ccb09377aed1";
+      hash = "sha256-VOiN6583DtzGYPRkl19VG2QvSzl4T9HaynBuNcvZf94=";
     };
   };
   
@@ -294,8 +312,8 @@
     src = fetchFromGitHub {
       owner = "openssl";
       repo = "openssl";
-      rev = "OpenSSL_1_1_1l";
-      hash = "sha256-FN0OVoE92tpDpkHx8Oh9XuzovZ8IP/lxt7YFREoWLy4=";
+      rev = "OpenSSL_1_1_1t";
+      hash = "sha256-gI2+Vm67j1+xLvzBb+DF0YFTOHW7myotRsXRzluzSLY=";
     };
   };
   
@@ -312,16 +330,16 @@
     src = fetchFromGitHub {
       owner = "Dushistov";
       repo = "sdcv";
-      rev = "d054adb37c635ececabc31b147c968a480d1891a";
-      hash = "sha256-mJ9LrQ/l0SRmueg+IfGnS0NcNheGdOZ2Gl7KMFiK6is=";
+      rev = "6e36e7730caf07b6cd0bfa265cdf9b5e31e7acad";
+      hash = "sha256-pPaT9tB39dd+VyE21KSjMpON99KjOxQ8Hi8+ZgFsuUY=";
     };
   };
   
   
   sqlite = {
     src = fetchurl {
-      url = "https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz";
-      hash = "sha256-vZDD65a+6ZYga4O+cGXJzhmu84w/T7Uwc62g0LabvOM=";
+      url = "https://www.sqlite.org/2023/sqlite-autoconf-3410000.tar.gz";
+      hash = "sha256-Sfd6xT/Zql1zlfJJnLgWQQ5WIZhKEhuFjMygUxCwXHA=";
     };
   };
   
@@ -354,15 +372,15 @@
     src = fetchFromGitHub {
       owner = "JuliaStrings";
       repo = "utf8proc";
-      rev = "v2.6.1";
-      hash = "sha256-h6MVgyNFM4t6Ay0m9gAKIE1HF9qlW9Xl0nr+maMyDP8=";
+      rev = "v2.8.0";
+      hash = "sha256-/lSD78kj133rpcSAOh8T8XFW/Z0c3JKkGQM5Z6DcMtU=";
     };
   };
   
   zlib = {
     src = fetchurl {
-      url = "http://gentoo.osuosl.org/distfiles/zlib-1.2.11.tar.gz";
-      hash = "sha256-w+Xp/dUATctUL+2l7k8P8HRGKLr47S3V1m+MoRl8saE=";
+      url = "http://gentoo.osuosl.org/distfiles/zlib-1.2.13.tar.xz";
+      hash = "sha256-0Uw44xOvw1qah2Da3yYEL1HqD10VSwYwox2gVAEH+5g=";
     };
   };
   
@@ -370,8 +388,8 @@
     src = fetchFromGitHub {
       owner = "facebook";
       repo = "zstd";
-      rev = "tags/v1.5.0";
-      hash = "sha256-R+Y10gd3GE17AJ5zIXGI4tuOdyCikdZXwbkMllAHjEU=";
+      rev = "tags/v1.5.4";
+      hash = "sha256-2blY4hY4eEcxY8K9bIhYPbfb//rt/+J2TmvxABPG78A=";
     };
   };
   
