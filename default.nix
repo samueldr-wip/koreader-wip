@@ -53,6 +53,8 @@ in
         patches = [];
         src = builtins.fetchGit {
           url = ./koreader;
+          # XXX when hacking on lua, use rev
+          rev = "e39624ffc55e535d11ed8b967bb5870b742a5a6d";
           submodules = true;
         };
       })
@@ -87,5 +89,24 @@ in
       }
     ) {
       koreader = koreader-recombined;
+      additionalPaths = [ luaBits ];
     };
+    luaBits = pkgs.callPackage (
+      { runCommand }:
+      runCommand "koreader-wip-lua-bits" {
+        src = builtins.fetchGit {
+          url = ./koreader;
+          submodules = true;
+        };
+      } ''
+        (
+        PS4=" $ "
+        set -x
+        mkdir -p $out/lib/koreader/
+        cp -rvt $out/lib/koreader/ \
+          $src/*.lua \
+          $src/frontend
+        )
+      ''
+    ) {  };
   }
