@@ -285,6 +285,8 @@ stdenv.mkDerivation (debugVars // {
     (
     cd base
 
+    echo ":: Building third-party libraries"
+
     # The shorted `make` invocation to build all thirdparty libs
     make TARGET=debian \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs \
