@@ -20,7 +20,7 @@
 , pkg-config
 , perl
 , luarocks
-, python27
+, python3
 , chrpath # Used to fix RPATH refs by their build system
 
 , ragel
@@ -214,7 +214,7 @@ stdenv.mkDerivation (debugVars // {
 
     # /usr/bin/env usage, but substitution happens too late if this is not +x'd
       substituteInPlace "$(third-party-dir glib)/glib/gobject/glib-mkenums.in" \
-        --replace "/usr/bin/env @PYTHON@" "${python27}/bin/python2.7"
+        --replace "/usr/bin/env @PYTHON@" "${python3}/bin/python"
     )
 
     patchShebangs .
@@ -248,7 +248,7 @@ stdenv.mkDerivation (debugVars // {
     autoconf-archive
     pkg-config
     perl
-    python27
+    python3
     #chrpath # XXX bug: no rpath at all; fix: add $out libs folder to rpath
     ragel
     luarocks
@@ -268,9 +268,6 @@ stdenv.mkDerivation (debugVars // {
   /* XXX */    NIX_CFLAGS_COMPILE = [ "-I${openjpeg.dev}/include/${openjpeg.incDir}" ];
   /* XXX */    NIX_LDFLAGS = [
   /* XXX */      "-lopenjp2"
-  /* XXX */      "-lopenjp3d"
-  /* XXX */      "-lopenjpwl"
-  /* XXX */      "-lopenmj2"
   /* XXX */      "-ljbig2dec"
   /* XXX */    ];
 
