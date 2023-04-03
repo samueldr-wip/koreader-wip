@@ -58,14 +58,13 @@ in
       })
     ;
     configured-koreader = pkgs.callPackage (
-      { symlinkJoin, koreader }:
+      { symlinkJoin, koreader, additionalPaths ? [] }:
 
       symlinkJoin {
         name = "koreader-configured";
-        paths = [
-          koreader
+        paths = additionalPaths ++ [
           my-plugins
-          # TODO: allow easily replacing all useful lua files rather than re-compile the whole app
+          koreader
         ];
 
         postBuild = ''
