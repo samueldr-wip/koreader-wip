@@ -9,6 +9,10 @@ let
   pkgs = pkgs'.appendOverlays([
     (final: super: {
       koreader = final.callPackage ./pkgs/koreader {
+        # ¯\_(ツ)_/¯
+        # Their luajit fails on aarch64 when built with gcc12.
+        # `table overflow` at unrelated(?) locations.
+        stdenv = final.gcc9Stdenv;
         luaPackages = final.luajitPackages;
         luarocks = final.luajitPackages.luarocks;
       };
