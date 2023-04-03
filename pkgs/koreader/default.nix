@@ -291,6 +291,7 @@ stdenv.mkDerivation (debugVars // {
     # The shorted `make` invocation to build all thirdparty libs
     make TARGET=debian \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs \
+      build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libcrengine.so \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libczmq.so.1 \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/libgif.so.7 \
       build/${stdenv.hostPlatform.config}$KODEBUG_SUFFIX/libs/liblodepng.so \
