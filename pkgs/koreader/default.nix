@@ -282,7 +282,7 @@ stdenv.mkDerivation (debugVars // {
     "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"
   ];
 
-  # ¯\_(ツ)_/¯
+  # cmake is not used for the project itself, but to manage parts of the build.
   dontUseCmakeConfigure = true;
 
   # ¯\_(ツ)_/¯
