@@ -17,11 +17,12 @@ let
       };
     })
     (final: super: {
-      # For dev...
+      # NOTE: pinning a local revision so local changes don't affect memoized third-party builds.
       koreader = super.koreader.overrideAttrs(_: {
         patches = [];
         src = builtins.fetchGit {
           url = ./koreader;
+          rev = "e39624ffc55e535d11ed8b967bb5870b742a5a6d";
           submodules = true;
         };
       });
@@ -44,7 +45,18 @@ in
   rec {
     inherit (pkgs) koreader;
     koreader-libs = (koreader.override({ buildMemoizedLibs = true; }));
-    koreader-recombined = (koreader.override({ memoizedLibBuild = koreader-libs; }));
+    # This uses the memoized libraries from the "known good" revision.
+    # Only changes to lua files will be built.
+    koreader-recombined =
+      (koreader.override({ memoizedLibBuild = koreader-libs; }))
+      .overrideAttrs(_: {
+        patches = [];
+        src = builtins.fetchGit {
+          url = ./koreader;
+          submodules = true;
+        };
+      })
+    ;
     configured-koreader = pkgs.callPackage (
       { symlinkJoin, koreader }:
 
