@@ -117,21 +117,20 @@ let
 in
 stdenv.mkDerivation (debugVars // {
   pname = "koreader";
-  version = "v2022.03.1";
+  # NOTE: `version` must be parseable by frontend/version.lua#Version:getNormalizedVersion
+  #       we are saving it to `git-rev` since we're not allowing `git` to identify the version in the build.
+  version = "v2023.03-wip";
 
   # TODO: use non-submodules fetchFromGitHub, but with a list pre-composed not unlike deps.nix?
   # Might make it easier to replace just one repo for development purposes.
-  src = fetchFromGitHub {
-    owner = "koreader";
-    repo = "koreader";
-    rev = "v2022.03.1";
-    hash = "sha256-a6zzb/RCxySFgMH60BfRenX1bPg3CRmEOMPploM/Rio=";
-    fetchSubmodules = true;
-  };
-
-  patches = [
-    ./fix-building.patch
-  ];
+  # XXX: Currently overriding `src`; not setting it here to ensure I don't trip-up while hacking on stuff...
+  ## src = fetchFromGitHub {
+  ##   owner = "koreader";
+  ##   repo = "koreader";
+  ##   rev = "";
+  ##   hash = "";
+  ##   fetchSubmodules = true;
+  ## };
 
   postPatch = ''
     third-party-dir() {
