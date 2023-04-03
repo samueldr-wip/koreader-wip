@@ -274,14 +274,6 @@ stdenv.mkDerivation (debugVars // {
   /* XXX */      "-ljbig2dec"
   /* XXX */    ];
 
-  VERBOSE = "1";
-  makeFlags = [
-    "VERBOSE=1"
-  ];
-  cmakeFlags = [
-    "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"
-  ];
-
   # cmake is not used for the project itself, but to manage parts of the build.
   dontUseCmakeConfigure = true;
 
