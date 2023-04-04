@@ -1,37 +1,47 @@
 { system ? builtins.currentSystem
 , pkgs ? import ./pkgs.nix { inherit system; }
+, hacking-setup ? false
+, use-local-checkout ? hacking-setup
 }:
 
 # Break reference cycle
 let pkgs' = pkgs; in
 
 let
-  pkgs = pkgs'.appendOverlays([
-    (final: super: {
-      koreader = final.callPackage ./pkgs/koreader {
-        # ¯\_(ツ)_/¯
-        # Their luajit fails on aarch64 when built with gcc12.
-        # `table overflow` at unrelated(?) locations.
-        stdenv = final.gcc9Stdenv;
-        luaPackages = final.luajitPackages;
-        luarocks = final.luajitPackages.luarocks;
-      };
-      koreader-plugins = pkgs.callPackage ./pkgs/koreader/plugins.nix {
-        inherit (final.koreader) src;
-      };
-    })
-    (final: super: {
-      # NOTE: pinning a local revision so local changes don't affect memoized third-party builds.
-      koreader = super.koreader.overrideAttrs(_: {
-        patches = [];
-        src = builtins.fetchGit {
-          url = ./koreader;
-          rev = "e39624ffc55e535d11ed8b967bb5870b742a5a6d";
-          submodules = true;
+  inherit (pkgs') lib;
+  pkgs = pkgs'.appendOverlays(
+    [
+      (final: super: {
+        koreader = final.callPackage ./pkgs/koreader {
+          # ¯\_(ツ)_/¯
+          # Their luajit fails on aarch64 when built with gcc12.
+          # `table overflow` at unrelated(?) locations.
+          stdenv = final.gcc9Stdenv;
+          luaPackages = final.luajitPackages;
+          luarocks = final.luajitPackages.luarocks;
         };
-      });
-    })
-  ]);
+        koreader-plugins = pkgs.callPackage ./pkgs/koreader/plugins.nix {
+          inherit (final.koreader) src;
+        };
+      })
+    ]
+    # This is needed when the pinned version in `koreader/default.nix` is too
+    # different from the overriden checkout when re-combining.
+    ++ lib.optional use-local-checkout
+      (builtins.trace "NOTE: using local checkout"
+        (final: super: {
+          # NOTE: pinning a local revision so local changes don't affect memoized third-party builds.
+          koreader = super.koreader.overrideAttrs(_: {
+            patches = [];
+            src = builtins.fetchGit {
+              url = ./koreader;
+              rev = "e39624ffc55e535d11ed8b967bb5870b742a5a6d";
+              submodules = true;
+            };
+          });
+        })
+      )
+  );
 
   my-plugins =
     pkgs.callPackage (
@@ -92,25 +102,34 @@ in
         '';
       }
     ) {
-      koreader = koreader-recombined;
-      additionalPaths = [ luaBits ];
+      koreader =
+        if hacking-setup
+        then koreader-recombined
+        else koreader
+      ;
+      additionalPaths =
+        [ ]
+        ++ lib.optional hacking-setup luaBits
+      ;
     };
-    luaBits = pkgs.callPackage (
-      { runCommand }:
-      runCommand "koreader-wip-lua-bits" {
-        src = builtins.fetchGit {
-          url = ./koreader;
-          submodules = true;
-        };
-      } ''
-        (
-        PS4=" $ "
-        set -x
-        mkdir -p $out/lib/koreader/
-        cp -rvt $out/lib/koreader/ \
-          $src/*.lua \
-          $src/frontend
-        )
-      ''
-    ) {  };
+    luaBits = builtins.trace "NOTE: using local checkout for lua bits" (
+      pkgs.callPackage (
+        { runCommand }:
+        runCommand "koreader-wip-lua-bits" {
+          src = builtins.fetchGit {
+            url = ./koreader;
+            submodules = true;
+          };
+        } ''
+          (
+          PS4=" $ "
+          set -x
+          mkdir -p $out/lib/koreader/
+          cp -rvt $out/lib/koreader/ \
+            $src/*.lua \
+            $src/frontend
+          )
+        ''
+      ) {  }
+    );
   }
