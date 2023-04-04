@@ -121,16 +121,13 @@ stdenv.mkDerivation (debugVars // {
   #       we are saving it to `git-rev` since we're not allowing `git` to identify the version in the build.
   version = "v2023.03-wip";
 
-  # TODO: use non-submodules fetchFromGitHub, but with a list pre-composed not unlike deps.nix?
-  # Might make it easier to replace just one repo for development purposes.
-  # XXX: Currently overriding `src`; not setting it here to ensure I don't trip-up while hacking on stuff...
-  ## src = fetchFromGitHub {
-  ##   owner = "koreader";
-  ##   repo = "koreader";
-  ##   rev = "";
-  ##   hash = "";
-  ##   fetchSubmodules = true;
-  ## };
+  src = fetchFromGitHub {
+    owner = "samueldr-wip";
+    repo = "koreader";
+    rev = "738bf4deceab90e7e1fcb804100c6f6b5161de2a"; # wip/2023-04-02
+    hash = "sha256-L1V4Fec3S2Q/9o8N+w8bQuGSy9zLJTynbYjYtUziFLI=";
+    fetchSubmodules = true;
+  };
 
   postPatch = ''
     third-party-dir() {
