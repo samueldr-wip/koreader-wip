@@ -124,8 +124,8 @@ stdenv.mkDerivation (debugVars // {
   src = fetchFromGitHub {
     owner = "samueldr-wip";
     repo = "koreader";
-    rev = "0ff94cc38d40d28530b42c9210bd903655c5d9f3"; # wip/2023-04-08
-    hash = "sha256-M6uYJRHH0wCXyZlaUW3yZfSrIh171485Re/8ubIbe9M=";
+    rev = "cb131f63e54113510ebd47d0e473750a77027f98"; # wip/2023-04-08
+    hash = "sha256-2xFyj1ktoeajwHv3HAaYqpDiA+zGos5ChhqcsCDwTLs=";
     fetchSubmodules = true;
   };
 
