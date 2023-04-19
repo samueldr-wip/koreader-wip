@@ -109,6 +109,14 @@ let
       KODEBUG_SUFFIX = "-debug";
       KODEBUG = "1";
       KODEBUG_NO_DEFAULT = "1";
+
+# VERBOSE = "1";
+# makeFlags = [
+#   "VERBOSE=1"
+# ];
+# cmakeFlags = [
+#   "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"
+# ];
     }
     else {
       KODEBUG_SUFFIX = "";
@@ -119,13 +127,13 @@ stdenv.mkDerivation (debugVars // {
   pname = "koreader";
   # NOTE: `version` must be parseable by frontend/version.lua#Version:getNormalizedVersion
   #       we are saving it to `git-rev` since we're not allowing `git` to identify the version in the build.
-  version = "v2023.03+wip-2023-04-08";
+  version = "v2023.03+wip-2023-04-18";
 
   src = fetchFromGitHub {
     owner = "samueldr-wip";
     repo = "koreader";
-    rev = "405fd575d581b26f558ff1cba4246f2cc47a0dce"; # wip/2023-04-10
-    hash = "sha256-qyjjiHnhW4eOIh7HdR8fwqaq0DMjK2zhwu/tcF+uRNA=";
+    rev = "48b07b3bb6a0d0c4757ff30ffcc230b36802a5aa"; # wip/2023-04-18
+    hash = "sha256-uUozXsO/+Pj+2SjQcbocWngRzyFgcjdUVvncM5sOucg=";
     fetchSubmodules = true;
   };
 
