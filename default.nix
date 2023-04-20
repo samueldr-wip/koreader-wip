@@ -49,7 +49,6 @@ let
       symlinkJoin {
         name = "koreader-configured-plugins";
         paths = with koreader-plugins; [
-          autowarmth
           batterystat
           coverbrowser
           gestures
