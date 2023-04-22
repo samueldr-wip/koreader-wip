@@ -127,13 +127,13 @@ stdenv.mkDerivation (debugVars // {
   pname = "koreader";
   # NOTE: `version` must be parseable by frontend/version.lua#Version:getNormalizedVersion
   #       we are saving it to `git-rev` since we're not allowing `git` to identify the version in the build.
-  version = "v2023.03+wip-2023-04-20";
+  version = "v2023.03+wip-2023-04-21";
 
   src = fetchFromGitHub {
     owner = "samueldr-wip";
     repo = "koreader";
-    rev = "7ba156e78ceec8d9c912c9d75c7660674e81e149"; # wip/2023-04-20
-    hash = "sha256-kr6ZQ+cObSMRmtjPvWPbwpGI2ySOUfgKshiy8e+zz0E=";
+    rev = "be530748a3217afec1d8980fb047a086a1b850ac"; # wip/2023-04-21
+    hash = "sha256-zFp1whiPh/GqI/CIY6cCWUaOlaJL3cPaD80Llla5ZnM=";
     fetchSubmodules = true;
   };
 
